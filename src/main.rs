@@ -1,7 +1,9 @@
+use lib::network::Network;
+
 pub mod lib;
 
 fn main() {
-    let a = Matrix::new(1, 8);
+    Network::new(vec![]);
 
     println!("Hello, World");
 }

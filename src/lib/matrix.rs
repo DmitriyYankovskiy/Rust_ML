@@ -4,16 +4,15 @@ use std::ops:: {
     Add, 
     Sub, 
     Mul, 
-    Index,
     Rem,
-    Not
+    Not,
 };
 
 #[derive(Clone)]
 pub struct Matrix {
-    rows: usize,
-    cols: usize,
-    data: Vec<Vec<f64>>,
+    pub rows: usize,
+    pub cols: usize,
+    pub data: Vec<Vec<f64>>,
 } 
 
 impl Matrix {
@@ -38,7 +37,7 @@ impl Matrix {
 
         for i in 0..rows {
             for j in 0..cols {
-                matrix[i][j] = rand::thread_rng().gen::<f64>() * 2.0 - 1.0;
+                matrix.data[i][j] = rand::thread_rng().gen::<f64>() * 2.0 - 1.0;
             }
         }
 
@@ -46,9 +45,9 @@ impl Matrix {
     }
 }
 
-impl Add for Matrix {
+impl<'a, 'b> Add<&'b Matrix> for &'a Matrix {
     type Output = Matrix;
-    fn add(self, other: Matrix) -> Matrix{
+    fn add (self, other: &'b Matrix) -> Matrix {
         if self.rows != other.rows || self.cols != other.cols {
             panic!("Attempted to add by matrix of incorrect dimensions");
         }
@@ -57,7 +56,7 @@ impl Add for Matrix {
 
         for i in 0..matrix.rows {
             for j in 0..matrix.cols {                
-                matrix[i][j] = self[i][j] + other[i][j];                
+                matrix.data[i][j] = self.data[i][j] + other.data[i][j];                
             }
         }
 
@@ -65,9 +64,9 @@ impl Add for Matrix {
     }
 }
 
-impl Mul for Matrix {
+impl<'a, 'b> Mul<&'b Matrix> for &'a Matrix {
     type Output = Matrix;
-    fn mul (self, other: Matrix) -> Matrix {
+    fn mul (self, other: &'b Matrix) -> Matrix {
         if self.cols != other.rows {
             panic!("Attempted to multiply by matrix of incorrect dimensions");
         }
@@ -77,7 +76,7 @@ impl Mul for Matrix {
         for i in 0..matrix.rows {
             for j in 0..matrix.cols {
                 for k in 0..self.cols {
-                    matrix[i][j] += self[i][k] * other[k][j];
+                    matrix.data[i][j] += self.data[i][k] * other.data[k][j];
                 }
             }
         }
@@ -86,9 +85,9 @@ impl Mul for Matrix {
     }
 }
 
-impl Sub for Matrix {
+impl<'a, 'b> Sub<&'b Matrix> for &'a Matrix {
     type Output = Matrix;
-    fn sub(self, other: Matrix) -> Matrix{
+    fn sub (self, other: &'b Matrix) -> Matrix {
         if self.rows != other.rows || self.cols != other.cols {
             panic!("Attempted to subtrct by matrix of incorrect dimensions");
         }
@@ -97,7 +96,7 @@ impl Sub for Matrix {
 
         for i in 0..matrix.rows {
             for j in 0..matrix.cols {                
-                matrix[i][j] = self[i][j] - other[i][j];                
+                matrix.data[i][j] = self.data[i][j] - other.data[i][j];                
             }
         }
 
@@ -105,16 +104,9 @@ impl Sub for Matrix {
     }
 }
 
-impl Index<usize> for Matrix {
-    type Output = Vec<f64>;
-    fn index(&self, index: usize) -> &Vec<f64> {
-        &self.data[index]
-    }
-}
-
-impl Rem for Matrix {
+impl<'a, 'b> Rem<&'b Matrix> for &'a Matrix {
     type Output = Matrix;
-    fn rem(self, other: Matrix) -> Matrix{
+    fn rem (self, other: &'b Matrix) -> Matrix {
         if self.rows != other.rows || self.cols != other.cols {
             panic!("Attempted to dot multiply by matrix of incorrect dimensions");
         }
@@ -123,7 +115,7 @@ impl Rem for Matrix {
 
         for i in 0..matrix.rows {
             for j in 0..matrix.cols {                
-                matrix[i][j] = self[i][j] * other[i][j];                
+                matrix.data[i][j] = self.data[i][j] * other.data[i][j];                
             }
         }
 
@@ -131,14 +123,14 @@ impl Rem for Matrix {
     }
 }
 
-impl Not for Matrix {
+impl<'a> Not for &'a Matrix {
     type Output = Matrix;
-    fn not(self) -> Matrix{
+    fn not (self) -> Matrix {
         let mut matrix = Matrix::new(self.cols, self.rows);
 
         for i in 0..matrix.rows {
             for j in 0..matrix.cols {                
-                matrix[j][i] = self[i][j];                
+                matrix.data[j][i] = self.data[i][j];                
             }
         }
 
