@@ -43,6 +43,18 @@ impl Matrix {
 
         matrix
     }
+
+    pub fn map(&mut self, function: &dyn Fn(f64) -> f64) -> Matrix {
+        let mut matrix = self.clone();
+        
+        for i in 0..matrix.rows {
+            for j in 0..matrix.cols {
+                matrix.data[i][j] = function(matrix.data[i][j]);
+            }
+        }
+
+        matrix
+    }
 }
 
 impl<'a, 'b> Add<&'b Matrix> for &'a Matrix {

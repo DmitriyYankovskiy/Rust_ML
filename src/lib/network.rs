@@ -1,14 +1,15 @@
-use super::matrix::Matrix;
+use super::{matrix::Matrix, activation::Activation};
 
-pub struct Network {
+pub struct Network<'a> {
     layers: Vec<usize>,
     weights: Vec<Matrix>,
     biases: Vec<Matrix>,
     data: Vec<Vec<f64>>,    
+    activation: Activation<'a>,
 }
 
-impl Network {
-    pub fn new(layers: Vec<usize>) -> Network{
+impl<'a> Network<'a> {
+    pub fn new(layers: Vec<usize>, activation: Activation<'a>) -> Network<'a>{
         let mut weights: Vec<Matrix> = vec![];
         let mut biases: Vec<Matrix> = vec![];
         let mut data: Vec<Vec<f64>> = vec![vec![0.0; layers[0]]; 1];
@@ -24,6 +25,7 @@ impl Network {
             weights,
             biases,
             data,
+            activation,
         }
     }
 
@@ -41,9 +43,11 @@ impl Network {
         return (!&current).data[0].clone();
     }
 
-    pub fn back_propogation(output: Vec<f64>, target: Vec<f64>) {
+    pub fn back_propogation(&mut self, output: Vec<f64>, target: Vec<f64>) {
         let error = &!&Matrix::from(vec![target]) - &!&Matrix::from(vec![output]);
 
-        
+        for i in (0..self.layers.len()).rev() {
+            
+        }
     }
 }
