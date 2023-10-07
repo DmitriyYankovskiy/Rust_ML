@@ -34,23 +34,24 @@ impl<'a> Network<'a> {
             panic!("Attempted to feed forward input {}, but input layer has {} neuron", input.len(), self.layers[0]);
         }
         let mut current = !&Matrix::from(vec![input]); 
-        self.data.push(current.clone());
+        self.data = vec![current.clone()];
 
         for i in 0..self.layers.len()-1 {
             current = &self.weights[i] * &current;
             current += &self.biases[i];  
-            current.map(self.activation.function);
+            current.map(&self.activation.function);
             self.data.push(current.clone());      
         }
 
         (!&current).data[0].to_owned()
     }
 
-    pub fn back_propogate(&mut self, output: Vec<f64>, target: Vec<f64>) {
+    pub fn back_propogate(&mut self, outputs: Vec<f64>, target: Vec<f64>) {
         let mut errors = !&Matrix::from(vec![target]);
-        let mut gradients = !&Matrix::from(vec![output.clone()]);
+        errors -= &!&Matrix::from(vec![outputs.clone()]);
+        let mut gradients = !&Matrix::from(vec![outputs.clone()]);
         gradients.map(self.activation.derivative);
-        errors -= &!&Matrix::from(vec![output]);
+        
         
 
         for i in (0..self.layers.len() - 1).rev() {  
@@ -65,19 +66,19 @@ impl<'a> Network<'a> {
             errors = &!&self.weights[i] * &errors;          
             
             gradients = data.clone();
-            gradients.map(self.activation.derivative);
+            gradients.map(&self.activation.derivative);
         }
     }
 
-    pub fn train(& mut self, input: Vec<Vec<f64>>, target: Vec<Vec<f64>>, epoch: usize) {
+    pub fn train(& mut self, inputs: Vec<Vec<f64>>, targets: Vec<Vec<f64>>, epoch: usize) {
         for i in 1..=epoch {
             if i % 100 == 0 {
                 println!("train - {}", i);
             }
 
-            for j in 0..input.len() {
-                let output = self.feed_forward(input[j].clone());
-                self.back_propogate(output.clone(), target[j].clone());
+            for j in 0..inputs.len() {
+                let outputs = self.feed_forward(inputs[j].clone());
+                self.back_propogate(outputs.clone(), targets[j].clone());
             }
         }
     }
