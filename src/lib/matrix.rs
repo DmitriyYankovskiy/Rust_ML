@@ -1,6 +1,6 @@
-use rand :: Rng;
+use rand::Rng;
 
-use std::ops:: {
+use std::ops::{
     SubAssign, 
     Mul, 
     RemAssign,
@@ -104,7 +104,7 @@ impl SubAssign<& Matrix> for Matrix {
 }
 
 impl RemAssign<& Matrix> for Matrix {
-    fn rem_assign (&mut self, other: & Matrix) {
+    fn rem_assign (&mut self, other: &Matrix) {
         if self.rows != other.rows || self.cols != other.cols {
             panic!("Attempted to dot multiply by matrix of incorrect dimensions");
         }
@@ -120,10 +120,8 @@ impl RemAssign<& Matrix> for Matrix {
 impl Not for &Matrix {
     type Output = Matrix;
     fn not (self) -> Matrix {
-        let mut matrix = Matrix::new(self.cols, self.rows);
+        let mut matrix = Matrix::new(self.cols, self.rows);      
         
-        
-
         for i in 0..self.rows {
             for j in 0..self.cols {                
                 matrix.data[j][i] = self.data[i][j];           

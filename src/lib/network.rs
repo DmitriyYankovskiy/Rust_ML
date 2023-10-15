@@ -36,7 +36,7 @@ impl<'a> Network<'a> {
         let mut current = !&Matrix::from(vec![input]); 
         self.data = vec![current.clone()];
 
-        for i in 0..self.layers.len()-1 {
+        for i in 0..self.layers.len() - 1 {
             current = &self.weights[i] * &current;
             current += &self.biases[i];  
             current.map(&self.activation.function);
@@ -46,11 +46,12 @@ impl<'a> Network<'a> {
         (!&current).data[0].to_owned()
     }
 
-    pub fn back_propogate(&mut self, outputs: Vec<f64>, target: Vec<f64>) {
-        let mut errors = !&Matrix::from(vec![target]);
+    pub fn back_propogate(&mut self, outputs: Vec<f64>, targets: Vec<f64>) {
+        let mut errors = !&Matrix::from(vec![targets]);
         errors -= &!&Matrix::from(vec![outputs.clone()]);
+        
         let mut gradients = !&Matrix::from(vec![outputs.clone()]);
-        gradients.map(self.activation.derivative);
+        gradients.map(&self.activation.derivative);
         
         
 
