@@ -8,5 +8,5 @@ pub struct Activation<'a> {
 
 pub const SIGMOID: Activation = Activation {
     function: &|x| 1.0 / (1.0 + E.powf(-x)),
-    derivative: &|x| x * (1.0 - x), 
+    derivative: &|x| x * (1.0 - x),
 };
