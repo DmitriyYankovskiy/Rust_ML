@@ -1,4 +1,5 @@
-use super::{activation::Activation, matrix::Matrix};
+pub use super::activation::Activation;
+use super::matrix::Matrix;
 use std::{
     fs::File,
     io::{Read, Write},
