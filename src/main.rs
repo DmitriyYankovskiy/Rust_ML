@@ -1,6 +1,5 @@
-pub mod network;
-use network::activation::SIGMOID;
-use network::network::Network;
+pub use network::network::activation::SIGMOID;
+pub use network::network::network::Network;
 
 fn main() {
     let saves_file: &String = &"save.dat".to_string();
