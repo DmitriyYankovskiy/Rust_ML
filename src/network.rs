@@ -1,4 +1,4 @@
-pub use super::activation::Activation;
+use super::activation::Activation;
 use super::matrix::Matrix;
 use std::{
     fs::File,
