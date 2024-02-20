@@ -43,7 +43,7 @@ impl<'a> Network<'a> {
         }
     }
 
-    pub fn feed_forward(&mut self, input: Vec<f64>) -> Vec<f64> {
+    pub fn predict(&mut self, input: Vec<f64>) -> Vec<f64> {
         if input.len() != self.layers[0] {
             panic!(
                 "Attempted to feed forward input {}, but input layer has {} neuron",
@@ -92,7 +92,7 @@ impl<'a> Network<'a> {
             }
 
             for j in 0..inputs.len() {
-                let outputs = self.feed_forward(inputs[j].clone());
+                let outputs = self.predict(inputs[j].clone());
                 self.back_propogate(outputs.clone(), targets[j].clone());
             }
         }
