@@ -94,8 +94,8 @@ impl Matrix {
         let cols = other.cols;
         let mut matrix = Matrix::new(self.rows, other.cols);
 
-        for i in 0..matrix.rows {
-            for j in 0..matrix.cols {
+        for i in 0..rows {
+            for j in 0..cols {
                 let mut sum = 0.0;
                 for k in 0..self.cols {
                     sum += self.data[i][k] * other.data[k][j];
