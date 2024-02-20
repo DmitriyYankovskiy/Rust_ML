@@ -51,35 +51,34 @@ impl<'a> Network<'a> {
                 self.layers[0]
             );
         }
-        let mut current = !&Matrix::from(vec![input]);
+        let mut current = Matrix::from(vec![input]).rev();
         self.data = vec![current.clone()];
 
         for i in 0..self.layers.len() - 1 {
-            current = &self.weights[i] * &current;
-            current += &self.biases[i];
+            current = self.weights[i].mul(&current).add(&self.biases[i]);
             current.map(&self.activation.function);
             self.data.push(current.clone());
         }
 
-        (!&current).data[0].to_owned()
+        current.rev()[0].to_owned()
     }
 
     pub fn back_propogate(&mut self, outputs: Vec<f64>, targets: Vec<f64>) {
-        let mut errors = !&Matrix::from(vec![targets]);
-        errors -= &!&Matrix::from(vec![outputs.clone()]);
+        let mut errors = Matrix::from(vec![targets]).rev()
+            .sub(&Matrix::from(vec![outputs.clone()]).rev());
 
-        let mut gradients = !&Matrix::from(vec![outputs.clone()]);
+        let mut gradients = Matrix::from(vec![outputs.clone()]).rev();
         gradients.map(&self.activation.derivative);
 
         for i in (0..self.layers.len() - 1).rev() {
             let data = &self.data[i];
-            gradients %= &errors;
+            gradients = gradients.rem(&errors);
             gradients.map(&|x| x * self.learning_rate);
 
-            self.weights[i] += &(&gradients * &!data);
-            self.biases[i] += &gradients;
+            self.weights[i] = self.weights[i].add(&gradients.mul(&data.rev()));
+            self.biases[i] = self.biases[i].add(&gradients);
 
-            errors = &!&self.weights[i] * &errors;
+            errors = self.weights[i].rev().mul(&errors);
 
             gradients = data.clone();
             gradients.map(&self.activation.derivative);

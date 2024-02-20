@@ -1,6 +1,6 @@
 use rand::Rng;
 
-use std::ops::{AddAssign, Mul, Not, RemAssign, SubAssign};
+use std::ops::{Index, IndexMut};
 
 #[derive(Clone)]
 pub struct Matrix {
@@ -45,24 +45,44 @@ impl Matrix {
             }
         }
     }
-}
 
-impl AddAssign<&Matrix> for Matrix {
-    fn add_assign(&mut self, other: &Matrix) {
+    pub fn add(&self, other: &Matrix) -> Matrix {
         if self.rows != other.rows || self.cols != other.cols {
-            panic!("Attempted to add by matrix of incorrect dimensions");
+            panic!("Attempted to add by matrix of incorrect dimensions")
         }
-        for i in 0..self.rows {
-            for j in 0..self.cols {
-                self.data[i][j] += other.data[i][j];
+
+        let rows = self.rows;
+        let cols = self.cols;
+        let mut matrix = Matrix::new(rows, cols);
+
+        for i in 0..rows {
+            for j in 0..cols {
+                matrix.data[i][j] = self.data[i][j] + other.data[i][j];
             }
         }
-    }
-}
 
-impl<'a, 'b> Mul<&'b Matrix> for &'a Matrix {
-    type Output = Matrix;
-    fn mul(self, other: &'b Matrix) -> Matrix {
+        matrix
+    }
+
+    pub fn sub(&self, other: &Matrix) -> Matrix {
+        if self.rows != other.rows || self.cols != other.cols {
+            panic!("Attempted to subtrct by matrix of incorrect dimensions");
+        }
+
+        let rows = self.rows;
+        let cols = self.cols;
+        let mut matrix = Matrix::new(rows, cols);
+
+        for i in 0..rows {
+            for j in 0..cols {
+                matrix.data[i][j] = self.data[i][j] - other.data[i][j];
+            }
+        }
+
+        matrix
+    }
+
+    pub fn mul(&self, other: &Matrix) -> Matrix {
         if self.cols != other.rows {
             panic!(
                 "Attempted to multiply by matrix of incorrect dimensions {}:{}",
@@ -70,6 +90,8 @@ impl<'a, 'b> Mul<&'b Matrix> for &'a Matrix {
             );
         }
 
+        let rows = self.rows;
+        let cols = other.cols;
         let mut matrix = Matrix::new(self.rows, other.cols);
 
         for i in 0..matrix.rows {
@@ -85,38 +107,26 @@ impl<'a, 'b> Mul<&'b Matrix> for &'a Matrix {
 
         matrix
     }
-}
 
-impl SubAssign<&Matrix> for Matrix {
-    fn sub_assign(&mut self, other: &Matrix) {
-        if self.rows != other.rows || self.cols != other.cols {
-            panic!("Attempted to subtrct by matrix of incorrect dimensions");
-        }
-        for i in 0..self.rows {
-            for j in 0..self.cols {
-                self.data[i][j] -= other.data[i][j];
-            }
-        }
-    }
-}
-
-impl RemAssign<&Matrix> for Matrix {
-    fn rem_assign(&mut self, other: &Matrix) {
+    pub fn rem(&self, other: &Matrix) -> Matrix {
         if self.rows != other.rows || self.cols != other.cols {
             panic!("Attempted to dot multiply by matrix of incorrect dimensions");
         }
 
+        let rows = self.rows;
+        let cols = other.cols;
+        let mut matrix = Matrix::new(rows, cols);
+
         for i in 0..self.rows {
             for j in 0..self.cols {
-                self.data[i][j] *= other.data[i][j];
+                matrix.data[i][j] = self.data[i][j] * other.data[i][j];
             }
         }
-    }
-}
 
-impl Not for &Matrix {
-    type Output = Matrix;
-    fn not(self) -> Matrix {
+        matrix
+    }
+
+    pub fn rev(&self) -> Matrix {
         let mut matrix = Matrix::new(self.cols, self.rows);
 
         for i in 0..self.rows {
@@ -126,5 +136,18 @@ impl Not for &Matrix {
         }
 
         matrix
+    }
+}
+
+impl Index<usize> for Matrix {
+    type Output = Vec<f64>;
+    fn index(&self, index: usize) -> &Self::Output {
+        &self.data[index]
+    }
+}
+
+impl IndexMut<usize> for Matrix {
+    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
+        &mut self.data[index]
     }
 }
