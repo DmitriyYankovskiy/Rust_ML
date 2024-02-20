@@ -1,3 +1,5 @@
+use crate::Test;
+
 use super::activation::Activation;
 use super::matrix::Matrix;
 use std::{
@@ -85,15 +87,15 @@ impl<'a> Network<'a> {
         }
     }
 
-    pub fn train(&mut self, inputs: Vec<Vec<f64>>, targets: Vec<Vec<f64>>, epoch: usize) {
+    pub fn train(&mut self, tests: Vec<Test>, epoch: usize) {
         for i in 1..=epoch {
             if i % 100 == 0 {
                 println!("train - {}", i);
             }
 
-            for j in 0..inputs.len() {
-                let outputs = self.predict(inputs[j].clone());
-                self.back_propogate(outputs.clone(), targets[j].clone());
+            for j in 0..tests.len() {
+                let outputs = self.predict(tests[j].input.clone());
+                self.back_propogate(outputs.clone(), tests[j].target.clone());
             }
         }
     }
