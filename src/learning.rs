@@ -12,6 +12,13 @@ impl Data {
         }
         println!();
     }
+
+    pub fn error(&self) {
+        for i in self.0.iter() {
+            print!("{} ", i);
+        }
+        println!();
+    }
 }
 
 pub struct Example {
