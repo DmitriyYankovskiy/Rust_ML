@@ -6,4 +6,4 @@ pub mod learning;
 pub use activation::Activation;
 pub use matrix::Matrix;
 pub use network::Network;
-pub use learning::Test;
+pub use learning::DataSet;

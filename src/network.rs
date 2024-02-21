@@ -1,4 +1,4 @@
-use crate::Test;
+use crate::{learning::Data, DataSet};
 
 use super::activation::Activation;
 use super::matrix::Matrix;
@@ -45,7 +45,7 @@ impl<'a> Network<'a> {
         }
     }
 
-    pub fn predict(&mut self, input: Vec<f64>) -> Vec<f64> {
+    pub fn predict(&mut self, Data(input): Data) -> Data {
         if input.len() != self.layers[0] {
             panic!(
                 "Attempted to feed forward input {}, but input layer has {} neuron",
@@ -62,10 +62,10 @@ impl<'a> Network<'a> {
             self.data.push(current.clone());
         }
 
-        current.rev()[0].to_owned()
+        Data(current.rev()[0].to_owned())
     }
 
-    pub fn back_propogate(&mut self, outputs: Vec<f64>, targets: Vec<f64>) {
+    pub fn back_propogate(&mut self, Data(outputs): Data, Data(targets): Data) {
         let mut errors = Matrix::from(vec![targets]).rev()
             .sub(&Matrix::from(vec![outputs.clone()]).rev());
 
@@ -87,7 +87,7 @@ impl<'a> Network<'a> {
         }
     }
 
-    pub fn train(&mut self, tests: Vec<Test>, epoch: usize) {
+    pub fn train(&mut self, DataSet(tests): DataSet, epoch: usize) {
         for i in 1..=epoch {
             if i % 100 == 0 {
                 println!("train - {}", i);

@@ -1,13 +1,23 @@
-pub struct Test {
-    pub input: Vec<f64>,
-    pub target: Vec<f64>,
+#[derive(Debug, Clone)]
+pub struct Data(pub Vec<f64>);
+
+impl Data {
+    pub fn new<T: Into<f64>>(data: Vec<T>)-> Data {
+        Data(data.into_iter().map(|x| x.into()).collect())
+    }
 }
 
-impl Test {
-    pub fn new(input: Vec<f64>, target: Vec<f64>) -> Test {
-        Test {
+pub struct Example {
+    pub input: Data,
+    pub target: Data,
+}
+
+impl Example {
+    pub fn new(input: Data, target: Data) -> Example {
+        Example {
             input,
             target,
         }
     }
 }
+pub struct DataSet(pub Vec<Example>);
