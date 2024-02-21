@@ -5,6 +5,13 @@ impl Data {
     pub fn new<T: Into<f64>>(data: Vec<T>)-> Self {
         Self(data.into_iter().map(|x| x.into()).collect())
     }
+
+    pub fn view(&self) {
+        for i in self.0.iter() {
+            print!("{} ", i.round());
+        }
+        println!();
+    }
 }
 
 pub struct Example {
