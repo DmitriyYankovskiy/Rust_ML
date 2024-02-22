@@ -90,7 +90,7 @@ impl<'a> Network<'a> {
             gradient.dot(&errors);
             gradient.map(&|x| x * self.learning_rate);
 
-            self.weights[i].add(&gradient.mul(&front.rev()));
+            self.weights[i].add(&front.mul(&gradient.rev()));
             self.biases[i].add(gradient);
 
             errors = self.weights[i].rev().mul(&errors);
