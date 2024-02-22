@@ -81,7 +81,7 @@ impl<'a> Network<'a> {
             let front: &mut Matrix;
 
             {
-                let (left, right) = self.data.split_at_mut(i);
+                let (left, right) = self.data.split_at_mut(i + 1);
                 gradient = right.first_mut().unwrap();
                 front = left.first_mut().unwrap();
             }
