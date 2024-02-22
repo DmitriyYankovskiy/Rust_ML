@@ -1,8 +1,9 @@
 use rand::Rng;
+use serde::{Deserialize, Serialize}; 
 
 use std::ops::{Index, IndexMut};
 
-#[derive(Clone)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct Matrix {
     pub rows: usize,
     pub cols: usize,
@@ -15,14 +16,6 @@ impl Matrix {
             rows,
             cols,
             data: vec![vec![0.0; cols]; rows],
-        }
-    }
-
-    pub fn from(vec: Vec<Vec<f64>>) -> Matrix {
-        Matrix {
-            rows: vec.len(),
-            cols: vec[0].len(),
-            data: vec,
         }
     }
 
@@ -129,6 +122,23 @@ impl Matrix {
         matrix
     }
 }
+
+impl From<Vec<Vec<f64>>> for Matrix {
+    fn from(vec: Vec<Vec<f64>>) -> Matrix {
+        Matrix {
+            rows: vec.len(),
+            cols: vec[0].len(),
+            data: vec,
+        }
+    }
+}
+
+impl Into<Vec<Vec<f64>>> for Matrix {
+    fn into(self) -> Vec<Vec<f64>> {
+        self.data
+    }
+}
+
 
 impl Index<usize> for Matrix {
     type Output = Vec<f64>;

@@ -1,5 +1,6 @@
 use std::f64::consts::E;
 
+
 #[derive(Clone)]
 pub struct Activation<'a> {
     pub function: &'a dyn Fn(f64) -> f64,

@@ -10,6 +10,8 @@ use std::{
 use serde::{Deserialize, Serialize};
 use serde_json::{from_str, json};
 
+
+#[derive(Clone)]
 pub struct Network<'a> {
     layers: Vec<usize>,
     weights: Vec<Matrix>,
@@ -22,10 +24,24 @@ pub struct Network<'a> {
     activation: Activation<'a>,
 }
 
-#[derive(Serialize, Deserialize)]
+
+#[derive(Serialize, Deserialize, Clone)]
 struct SaveData {
     weights: Vec<Vec<Vec<f64>>>,
     biases: Vec<Vec<Vec<f64>>>,
+    edge_vel: Vec<Vec<Vec<f64>>>,
+    neuron_vel: Vec<Vec<Vec<f64>>>,
+} 
+
+impl<'a> From<Network<'a>> for SaveData {
+    fn from(network: Network<'a>) -> Self {
+        Self {
+            weights: network.weights.iter().map(|x| x.clone().into()).collect(),
+            biases: network.biases.iter().map(|x| x.clone().into()).collect(),
+            edge_vel: network.edge_vel.iter().map(|x| x.clone().into()).collect(),
+            neuron_vel: network.neuron_vel.iter().map(|x| x.clone().into()).collect(),
+        }
+    }
 }
 
 impl<'a> Network<'a> {
@@ -135,10 +151,7 @@ impl<'a> Network<'a> {
         let mut file = File::create(file).expect("Unable to touch save file");
 
         file.write_all(
-			json!({
-				"weights": self.weights.clone().into_iter().map(|matrix| matrix.data).collect::<Vec<Vec<Vec<f64>>>>(),
-				"biases": self.biases.clone().into_iter().map(|matrix| matrix.data).collect::<Vec<Vec<Vec<f64>>>>()
-			}).to_string().as_bytes(),
+			serde_json::to_string(&SaveData::from(self.clone())).unwrap().as_bytes(),
 		).expect("Unable to write to save file");
     }
 
@@ -151,15 +164,9 @@ impl<'a> Network<'a> {
 
         let save_data: SaveData = from_str(&buffer).expect("Unable to serialize save data");
 
-        let mut weights = vec![];
-        let mut biases = vec![];
-
-        for i in 0..self.layers.len() - 1 {
-            weights.push(Matrix::from(save_data.weights[i].clone()));
-            biases.push(Matrix::from(save_data.biases[i].clone()));
-        }
-
-        self.weights = weights;
-        self.biases = biases;
+        self.weights = save_data.weights.into_iter().map(|x| Matrix::from(x)).collect();
+        self.biases = save_data.biases.into_iter().map(|x| Matrix::from(x)).collect();
+        self.edge_vel = save_data.edge_vel.into_iter().map(|x| Matrix::from(x)).collect();
+        self.neuron_vel = save_data.neuron_vel.into_iter().map(|x| Matrix::from(x)).collect();
     }
 }
