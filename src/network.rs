@@ -15,7 +15,10 @@ pub struct Network<'a> {
     weights: Vec<Matrix>,
     biases: Vec<Matrix>,
     data: Vec<Matrix>,
+    edge_vel: Vec<Matrix>,
+    neuron_vel: Vec<Matrix>,
     learning_rate: f64,
+    impulse_rate: f64,
     activation: Activation<'a>,
 }
 
@@ -26,21 +29,28 @@ struct SaveData {
 }
 
 impl<'a> Network<'a> {
-    pub fn new(layers: Vec<usize>, learning_rate: f64, activation: Activation<'a>) -> Network<'a> {
+    pub fn new(layers: Vec<usize>, learning_rate: f64, impulse_rate: f64, activation: Activation<'a>) -> Network<'a> {
         let mut weights: Vec<Matrix> = vec![];
         let mut biases: Vec<Matrix> = vec![];
+        let mut edge_vel: Vec<Matrix> = vec![];
+        let mut neuron_vel: Vec<Matrix> = vec![];
 
         for i in 0..layers.len() - 1 {
             weights.push(Matrix::random(layers[i + 1], layers[i]));
             biases.push(Matrix::random(layers[i + 1], 1));
+            neuron_vel.push(Matrix::new(layers[i + 1], 1));
+            edge_vel.push(Matrix::new(layers[i + 1], layers[i]));
         }
 
         Network {
             layers,
             weights,
             biases,
+            edge_vel,
+            neuron_vel,
             data: vec![],
             learning_rate,
+            impulse_rate,
             activation,
         }
     }
@@ -78,9 +88,13 @@ impl<'a> Network<'a> {
 
         for i in (0..self.layers.len() - 1).rev() {
             let gradient: &mut Matrix;
+            let edge_vel: &mut Matrix;
+            let neuron_vel: &mut Matrix;
             let front: &mut Matrix;
 
             {
+                edge_vel = &mut self.edge_vel[i];
+                neuron_vel = &mut self.neuron_vel[i];
                 let (left, right) = self.data.split_at_mut(i + 1);
                 gradient = right.first_mut().unwrap();
                 front = left.last_mut().unwrap();
@@ -88,10 +102,17 @@ impl<'a> Network<'a> {
 
             gradient.map(&self.activation.derivative);
             gradient.dot(&errors);
-            gradient.map(&|x| x * self.learning_rate);
 
-            self.weights[i].add(&gradient.mul(&front.rev()));
-            self.biases[i].add(gradient);
+            edge_vel.map(&|x| x * self.impulse_rate);
+            edge_vel.add(&gradient.mul(&front.rev()));
+            edge_vel.map(&|x| x * self.learning_rate);
+
+            neuron_vel.map(&|x| x * self.impulse_rate);
+            neuron_vel.add(gradient);
+            neuron_vel.map(&|x| x * self.learning_rate);
+
+            self.weights[i].add(edge_vel);
+            self.biases[i].add(neuron_vel);
 
             errors = self.weights[i].rev().mul(&errors);
         }
