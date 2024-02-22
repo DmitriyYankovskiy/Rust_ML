@@ -46,40 +46,34 @@ impl Matrix {
         }
     }
 
-    pub fn add(&self, other: &Matrix) -> Matrix {
+    pub fn add(&mut self, other: &Matrix) {
         if self.rows != other.rows || self.cols != other.cols {
             panic!("Attempted to add by matrix of incorrect dimensions")
         }
 
         let rows = self.rows;
         let cols = self.cols;
-        let mut matrix = Matrix::new(rows, cols);
 
         for i in 0..rows {
             for j in 0..cols {
-                matrix.data[i][j] = self.data[i][j] + other.data[i][j];
+                self.data[i][j] += other.data[i][j];
             }
         }
-
-        matrix
     }
 
-    pub fn sub(&self, other: &Matrix) -> Matrix {
+    pub fn sub(&mut self, other: &Matrix) {
         if self.rows != other.rows || self.cols != other.cols {
             panic!("Attempted to subtrct by matrix of incorrect dimensions");
         }
 
         let rows = self.rows;
         let cols = self.cols;
-        let mut matrix = Matrix::new(rows, cols);
 
         for i in 0..rows {
             for j in 0..cols {
-                matrix.data[i][j] = self.data[i][j] - other.data[i][j];
+                self.data[i][j] -= other.data[i][j];
             }
         }
-
-        matrix
     }
 
     pub fn mul(&self, other: &Matrix) -> Matrix {
@@ -108,22 +102,19 @@ impl Matrix {
         matrix
     }
 
-    pub fn rem(&self, other: &Matrix) -> Matrix {
+    pub fn dot(&mut self, other: &Matrix) {
         if self.rows != other.rows || self.cols != other.cols {
             panic!("Attempted to dot multiply by matrix of incorrect dimensions");
         }
 
         let rows = self.rows;
         let cols = other.cols;
-        let mut matrix = Matrix::new(rows, cols);
 
         for i in 0..self.rows {
             for j in 0..self.cols {
-                matrix.data[i][j] = self.data[i][j] * other.data[i][j];
+                self.data[i][j] *= other.data[i][j];
             }
         }
-
-        matrix
     }
 
     pub fn rev(&self) -> Matrix {

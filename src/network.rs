@@ -54,48 +54,58 @@ impl<'a> Network<'a> {
             );
         }
         let mut current = Matrix::from(vec![input]).rev();
-        self.data = vec![current.clone()];
+        self.data = vec![];
 
         for i in 0..self.layers.len() - 1 {
-            current = self.weights[i].mul(&current).add(&self.biases[i]);
+            self.data.push(current);
+            
+            current = self.weights[i].mul(&self.data.last().unwrap());
+            current.add(&self.biases[i]);
             current.map(&self.activation.function);
-            self.data.push(current.clone());
         }
-
+        
+        self.data.push(current.clone());
         Data(current.rev()[0].to_owned())
     }
 
-    pub fn back_propogate(&mut self, Data(outputs): Data, Data(targets): Data) {
-        let mut errors = Matrix::from(vec![targets]).rev()
-            .sub(&Matrix::from(vec![outputs.clone()]).rev());
+    pub fn back_propogate(&mut self, Data(targets): Data) {
+        let mut errors = Matrix::from(vec![targets]).rev();
 
-        let mut gradients = Matrix::from(vec![outputs.clone()]).rev();
-        gradients.map(&self.activation.derivative);
+        {
+            let output = &self.data[self.layers.len() - 1];
+            errors.sub(output);
+        }
 
         for i in (0..self.layers.len() - 1).rev() {
-            let data = &self.data[i];
-            gradients = gradients.rem(&errors);
-            gradients.map(&|x| x * self.learning_rate);
+            let gradient: &mut Matrix;
+            let front: &mut Matrix;
 
-            self.weights[i] = self.weights[i].add(&gradients.mul(&data.rev()));
-            self.biases[i] = self.biases[i].add(&gradients);
+            {
+                let (left, right) = self.data.split_at_mut(i);
+                gradient = right.first_mut().unwrap();
+                front = left.first_mut().unwrap();
+            }
+
+            gradient.map(&self.activation.derivative);
+            gradient.dot(&errors);
+            gradient.map(&|x| x * self.learning_rate);
+
+            self.weights[i].add(&gradient.mul(&front.rev()));
+            self.biases[i].add(gradient);
 
             errors = self.weights[i].rev().mul(&errors);
-
-            gradients = data.clone();
-            gradients.map(&self.activation.derivative);
         }
     }
 
     pub fn train(&mut self, DataSet(tests): DataSet, epoch: usize) {
         for i in 1..=epoch {
             if i % 100 == 0 {
-                println!("train - {}", i);
+                println!("~~~ train {} ~~~", i);
             }
 
             for j in 0..tests.len() {
-                let outputs = self.predict(tests[j].input.clone());
-                self.back_propogate(outputs.clone(), tests[j].target.clone());
+                let _ = self.predict(tests[j].input.clone());
+                self.back_propogate(tests[j].target.clone());
             }
         }
     }
