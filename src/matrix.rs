@@ -24,7 +24,7 @@ impl Matrix {
         let mut rnd = rand::thread_rng();
         for i in 0..rows {
             for j in 0..cols {
-                matrix.data[i][j] = rnd.gen::<f64>() * 2.0 - 1.0;
+                matrix.data[i][j] = rnd.gen_range(-1.0..=1.0);
             }
         }
 
