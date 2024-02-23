@@ -134,7 +134,7 @@ impl<'a> Network<'a> {
         }
     }
 
-    pub fn train(&mut self, DataSet(tests): DataSet, epoch: usize, is_log: bool) {
+    pub fn train(&mut self, DataSet(tests): &DataSet, epoch: usize, is_log: bool) {
         for i in 1..=epoch {
             if (i % 100 == 0) && is_log {
                 println!("~~~ train {} ~~~", i);
