@@ -31,7 +31,7 @@ impl Matrix {
         matrix
     }
 
-    pub fn map(&mut self, function: &dyn Fn(f64) -> f64) {
+    pub fn map(&mut self, function: &mut dyn FnMut(f64) -> f64) {
         for i in 0..self.rows {
             for j in 0..self.cols {
                 self.data[i][j] = function(self.data[i][j]);

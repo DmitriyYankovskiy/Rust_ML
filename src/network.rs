@@ -87,7 +87,7 @@ impl<'a> Network<'a> {
             
             current = self.weights[i].mul(&self.data.last().unwrap());
             current.add(&self.biases[i]);
-            current.map(&self.activation.function);
+            current.map(&mut self.activation.function);
         }
         
         self.data.push(current.clone());
@@ -116,16 +116,16 @@ impl<'a> Network<'a> {
                 front = left.last_mut().unwrap();
             }
 
-            gradient.map(&self.activation.derivative);
+            gradient.map(&mut self.activation.derivative);
             gradient.dot(&errors);
 
-            edge_vel.map(&|x| x * self.impulse_rate);
+            edge_vel.map(&mut |x| x * self.impulse_rate);
             edge_vel.add(&gradient.mul(&front.rev()));
-            edge_vel.map(&|x| x * self.learning_rate);
+            edge_vel.map(&mut |x| x * self.learning_rate);
 
-            neuron_vel.map(&|x| x * self.impulse_rate);
+            neuron_vel.map(&mut |x| x * self.impulse_rate);
             neuron_vel.add(gradient);
-            neuron_vel.map(&|x| x * self.learning_rate);
+            neuron_vel.map(&mut |x| x * self.learning_rate);
 
             self.weights[i].add(edge_vel);
             self.biases[i].add(neuron_vel);
@@ -134,17 +134,28 @@ impl<'a> Network<'a> {
         }
     }
 
-    pub fn train(&mut self, DataSet(tests): &DataSet, epoch: usize, is_log: bool) {
+    pub fn train(&mut self, DataSet(tests): &DataSet, epoch: usize, is_log: bool) -> f64 {
+        let mut error: f64 = 0.0;
         for i in 1..=epoch {
+            error = 0.0;
             if (i % 100 == 0) && is_log {
                 println!("~~~ train {} ~~~", i);
             }
 
             for j in 0..tests.len() {
-                let _ = self.predict(tests[j].input.clone());
+                let mut cur_error: f64 = 0.0;
+                let mut res = Matrix::from(vec![self.predict(tests[j].input.clone()).0]);
+                res.sub(&Matrix::from(vec![tests[j].target.clone().0]));
+
+                res.map(&mut |x| {cur_error += x * x / 2.0; x});
+                cur_error /= tests[j].target.0.len() as f64;
+                error += cur_error;
+
                 self.back_propogate(tests[j].target.clone());
             }
         }
+
+        error / tests.len() as f64
     }
 
     pub fn save(&self, file: &String) {
