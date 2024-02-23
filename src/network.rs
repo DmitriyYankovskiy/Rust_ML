@@ -147,7 +147,7 @@ impl<'a> Network<'a> {
                 let mut res = Matrix::from(vec![self.predict(tests[j].input.clone()).0]);
                 res.sub(&Matrix::from(vec![tests[j].target.clone().0]));
 
-                res.map(&mut |x| {cur_error += x * x / 2.0; x});
+                res.map(&mut |x| {cur_error += x; x});
                 cur_error /= tests[j].target.0.len() as f64;
                 error += cur_error;
 
